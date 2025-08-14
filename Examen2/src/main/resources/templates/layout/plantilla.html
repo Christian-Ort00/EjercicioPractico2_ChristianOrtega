@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head th:fragment="head">
+    <title>CINE</title>
+    <meta charset="UTF-8"/>
+    <link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}" rel="stylesheet"/>
+    <link th:href="@{/webjars/font-awesome/css/all.css}" rel="stylesheet"/>
+    <script th:src="@{/js/rutinas.js}"></script>
+    <script th:src="@{/webjars/jquery/jquery.min.js}"></script>
+    <script th:src="@{/webjars/popper.js/umd/popper.min.js}"></script>
+    <script th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>        
+</head>
+<body style="background-color: #1b1b1b; color: #f5f5f5;">
+    <header th:fragment="header" class="header">
+        <nav class="navbar navbar-expand-sm navbar-dark" style="background-color: #111;">
+            <div class="container">
+                <a th:href="@{/}" class="navbar-brand mb-0 h1 text-warning">🎬 CINE</a>
+                <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
+
+                    <!-- Menú con restricción solo para ADMIN y VENDEDOR -->
+                    <ul class="navbar-nav" sec:authorize="hasRole('ROLE_ADMIN') or hasRole('ROLE_VENDEDOR')"> 
+                        <li class="nav-item px-2">
+                            <a class="nav-link text-light" th:href="@{/categoria/listado}">[[#{plantilla.categorias}]]</a>
+                        </li>
+                    </ul>
+
+                    <!-- Enlace a productos visible para todos -->
+                    <ul class="navbar-nav">
+                        <li class="nav-item px-2">
+                            <a class="nav-link text-warning" th:href="@{/producto/listado}">PELICULAS</a>
+                        </li>
+                    </ul>
+                     
+                    <!-- Selector de idioma -->
+                    <ul class="navbar-nav">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-light" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">[[#{idioma}]]</a>
+                            <ul class="dropdown-menu" style="background-color: #222;">
+                                <li><a class="dropdown-item text-light" th:href="@{/ (lang=es)}">ES</a></li>
+                                <li><a class="dropdown-item text-light" th:href="@{/ (lang=en)}">EN</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <div id="resultsBlock"></div>
+
+                    <!-- Enlace login solo para no autenticados -->
+                    <ul class="navbar-nav" sec:authorize="!isAuthenticated()">
+                        <li class="nav-item">
+                            <a class="nav-link text-light" th:href="@{/login}"><i class="fas fa-sign-in-alt"></i></a>
+                        </li>
+                    </ul>
+
+                    <!-- Información usuario y logout para autenticados -->
+                    <ul class="navbar-nav" sec:authorize="isAuthenticated()">
+                        <li class="nav-item my-auto text-warning">
+                            <i class="fas fa-user"></i> <span sec:authentication="name"></span>
+                        </li>
+                        <li class="nav-item my-auto">
+                            <form method="post" th:action="@{/logout}">
+                                <button class="btn btn-outline-warning"><i class="fas fa-sign-out-alt"></i></button>
+                            </form>
+                        </li>
+                    </ul>
+
+                </div>
+            </div>
+        </nav>
+        <section id="main-header" class="py-2 text-center" style="background-color: #c59d00; color: #111;">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h1><i class="fas fa-film"></i> [[#{plantilla.suTienda}]]</h1>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </header>
+
+    <footer th:fragment="footer" style="background-color: #111; color: #aaa;" class="mt-5 p-2">
+        <div class="container">
+            <div class="col">
+                <p class="lead text-center">
+                    &COPY 
+                </p>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
