@@ -1,0 +1,230 @@
+/*Se crea la base de datos */
+drop schema if exists cine;
+drop user if exists usuario_prueba;
+CREATE SCHEMA cine ;
+
+/*Se crea un usuario para la base de datos llamado "usuario_prueba" y tiene la contraseña "Usuario_Clave."*/
+create user 'usuario_prueba'@'%' identified by 'Usuar1o_Clave.';
+
+/*Se asignan los prvilegios sobr ela base de datos TechShop al usuario creado */
+grant all privileges on cine.* to 'usuario_prueba'@'%';
+flush privileges;
+
+use cine;
+
+/* la tabla de categoria contiene categorias de productos*/
+create table categoria (
+  id_categoria INT NOT NULL AUTO_INCREMENT,
+  descripcion VARCHAR(30) NOT NULL,
+  ruta_imagen varchar(1024),
+  activo bool,
+  PRIMARY KEY (id_categoria))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4;
+
+create table producto (
+  id_producto INT NOT NULL AUTO_INCREMENT,
+  id_categoria INT NOT NULL,
+  descripcion VARCHAR(30) NOT NULL,  
+  detalle VARCHAR(1600) NOT NULL, 
+  precio double,
+  existencias int,  
+  ruta_imagen varchar(1024),
+  activo bool,
+  PRIMARY KEY (id_producto),
+  foreign key fk_producto_caregoria (id_categoria) references categoria(id_categoria)  
+)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4;
+
+/*Se crea la tabla de clientes llamada cliente... igual que la clase Cliente */
+CREATE TABLE usuario (
+  id_usuario INT NOT NULL AUTO_INCREMENT,
+  username varchar(20) NOT NULL,
+  password varchar(512) NOT NULL,
+  nombre VARCHAR(20) NOT NULL,
+  apellidos VARCHAR(30) NOT NULL,
+  correo VARCHAR(75) NULL,
+  telefono VARCHAR(15) NULL,
+  ruta_imagen varchar(1024),
+  activo boolean,
+  PRIMARY KEY (`id_usuario`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4;
+
+create table factura (
+  id_factura INT NOT NULL AUTO_INCREMENT,
+  id_usuario INT NOT NULL,
+  fecha date,  
+  total double,
+  estado int,
+  PRIMARY KEY (id_factura),
+  foreign key fk_factura_usuario (id_usuario) references usuario(id_usuario)  
+)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4;
+
+create table venta (
+  id_venta INT NOT NULL AUTO_INCREMENT,
+  id_factura INT NOT NULL,
+  id_producto INT NOT NULL,
+  precio double, 
+  cantidad int,
+  PRIMARY KEY (id_venta),
+  foreign key fk_ventas_factura (id_factura) references factura(id_factura),
+  foreign key fk_ventas_producto (id_producto) references producto(id_producto) 
+)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4;
+
+/*Se insertan 3 registros en la tabla cliente como ejemplo */
+INSERT INTO usuario (id_usuario, username,password,nombre, apellidos, correo, telefono,ruta_imagen,activo) VALUES 
+(1,'admin','$2a$10$P1.w58XvnaYQUQgZUCk4aO/RTRl8EValluCqB3S2VMLTbRt.tlre.','Juan', 'Castro Mora',    'jcastro@gmail.com',    '4556-8978', 'https://img2.rtve.es/i/?w=1600&i=1677587980597.jpg',true),
+(2,'cine','$2a$10$GkEj.ZzmQa/aEfDmtLIh3udIH5fMphx/35d0EYeqZL5uzgCJ0lQRi','Rebeca',  'Contreras Mora', 'acontreras@gmail.com', '5456-8789','https://media.licdn.com/dms/image/v2/C5603AQGwjJ5ht4bWXQ/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1661476259292?e=2147483647&v=beta&t=9_i5zTdqHRMSXlb9H4TuWkWeRGQXmaZLjxkBlWsg2lg',true),
+(3,'pedro','$2a$10$koGR7eS22Pv5KdaVJKDcge04ZB53iMiw76.UjHPY.XyVYlYqXnPbO','Pedro', 'Mena Loria',     'lmena@gmail.com',      '7898-8936','https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Eduardo_de_Pedro_2019.jpg/480px-Eduardo_de_Pedro_2019.jpg?20200109230854',true);
+
+
+
+/*Se insertan 3 categorias de productos como ejemplo */
+/* Categorías de cine */
+INSERT INTO categoria (id_categoria, descripcion, ruta_imagen, activo) VALUES
+(1,'Acción',    'https://example.com/categoria-accion.jpg',    true),
+(2,'Comedia',   'https://example.com/categoria-comedia.jpg',   true),
+(3,'Drama',     'https://example.com/categoria-drama.jpg',     true),
+(4,'Animación', 'https://example.com/categoria-animacion.jpg', true);
+
+/* Películas (8 en total, 2 por categoría) */
+INSERT INTO producto (id_producto,id_categoria,descripcion,detalle,precio,existencias,ruta_imagen,activo) VALUES
+-- Acción
+(1,1,'John Wick','Acción y persecuciones. Texto descriptivo...',24000,5,'https://example.com/john-wick.jpg',true),
+(2,1,'El Caballero de la Noche','Héroes y villanos. Texto...',27600,2,'https://example.com/dark-knight.jpg',true),
+-- Comedia
+(3,2,'La Máscara','Comedia fantástica. Texto...',45000,5,'https://example.com/la-mascara.jpg',true),
+(4,2,'Supercool','Comedia juvenil. Texto...',57000,2,'https://example.com/supercool.jpg',true),
+-- Drama
+(5,3,'Sueños de Libertad','Drama carcelario. Texto...',15780,5,'https://example.com/suenos-libertad.jpg',true),
+(6,3,'Corazones y Destinos','Drama inspirador. Texto...',25400,5,'https://example.com/corazones-destinos.jpg',true),
+-- Animación
+(7,4,'Juguetes en Acción','Aventura animada. Texto...',285000,3,'https://example.com/juguetes-accion.jpg',true),
+(8,4,'Emociones en Juego','Comedia emotiva. Texto...',273000,2,'https://example.com/emociones-juego.jpg',true);
+
+/*Se crean 6 facturas */   /*'Activa','Pagada','Anulada')*/
+INSERT INTO factura (id_factura,id_usuario,fecha,total,estado) VALUES
+(1,1,'2024-06-05',211560,2),
+(2,2,'2024-06-07',554340,2),
+(3,3,'2024-08-07',871000,2),
+(4,1,'2024-08-15',244140,1),
+(5,2,'2024-09-17',414800,1),
+(6,3,'2024-09-21',420000,1);
+
+INSERT INTO venta (id_venta,id_factura,id_producto,precio,cantidad) values
+(1,1,5,45000,3),
+(2,1,8,15780,2),
+(3,1,7,15000,3),
+(4,2,4,45000,1),
+(5,2,4,154000,3),
+(6,2,2,15780,3),
+(7,3,4,154000,1),
+(8,3,5,57000,1),
+(9,3,8,330000,2),
+(10,1,6,57000,2),
+(11,1,8,27600,3),
+(12,1,2,15780,3),
+(13,2,8,27600,3),
+(14,2,1,154000,2),
+(15,2,3,24000,1),
+(16,3,4,330000,1),
+(17,3,2,45000,1),
+(18,3,8,15000,3);
+
+create table role (  
+  rol varchar(20),
+  PRIMARY KEY (rol)  
+);
+
+insert into role (rol) values ('ADMIN'), ('VENDEDOR'), ('USER');
+
+create table rol (
+  id_rol INT NOT NULL AUTO_INCREMENT,
+  nombre varchar(20),
+  id_usuario int,
+  PRIMARY KEY (id_rol)
+)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4;
+
+insert into rol (id_rol, nombre, id_usuario) values
+ (1,'ADMIN',1), (2,'USER',2) ;
+
+
+CREATE TABLE ruta (
+    id_ruta INT AUTO_INCREMENT NOT NULL,
+    patron VARCHAR(255) NOT NULL,
+    rol_name VARCHAR(50) NOT NULL,
+	PRIMARY KEY (id_ruta))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4;
+
+INSERT INTO ruta (patron, rol_name) VALUES ('/producto/nuevo', 'ADMIN'),
+('/producto/guardar', 'ADMIN'),
+('/producto/modificar/** ', 'ADMIN'),
+('/producto/eliminar/**', 'ADMIN'),
+('/categoria/nuevo', 'ADMIN'),
+('/categoria/guardar', 'ADMIN'),
+('/categoria/modificar/** ', 'ADMIN'),
+('/categoria/eliminar/**', 'ADMIN'),
+('/usuario/**', 'ADMIN'),
+('/constante/**', 'ADMIN'),
+('/role/** ', 'ADMIN'),
+('/usuario_role/**', 'ADMIN'),
+('/ruta/**', 'ADMIN'),
+('/producto/listado', 'USER'),
+('/categoria/listado', 'USER'),
+('/pruebas/**', 'VENDEDOR'),
+('/reportes/**', 'VENDEDOR'),
+('/facturar/carrito', 'USER'),
+('/payment/**', 'USER'),
+('/carrito/**', 'USER');
+
+CREATE TABLE ruta_permit (
+    id_ruta INT AUTO_INCREMENT NOT NULL,
+    patron VARCHAR(255) NOT NULL,
+	PRIMARY KEY (id_ruta))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4;
+
+INSERT INTO ruta_permit (patron) VALUES 
+('/'),
+('/index'),
+('/errores/**'),
+('/carrito/**'),
+('/registro/**'),
+('/js/**'),
+('/webjars/**');
+
+CREATE TABLE constante (
+    id_constante INT AUTO_INCREMENT NOT NULL,
+    atributo VARCHAR(25) NOT NULL,
+    valor VARCHAR(150) NOT NULL,
+	PRIMARY KEY (id_constante))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4;
+
+INSERT INTO constante (atributo,valor) VALUES 
+('dominio','localhost'),
+('certificado','c:/cert'),
+('dolar','520.75'),
+('paypal.client-id','AUjOjw5Q1I0QLTYjbvRS0j4Amd8xrUU2yL9UYyb3TOTcrazzd3G3lYRc6o7g9rOyZkfWEj2wxxDi0aRz'),
+('paypal.client-secret','EMdb08VRlo8Vusd_f4aAHRdTE14ujnV9mCYPovSmXCquLjzWd_EbTrRrNdYrF1-C4D4o-57wvua3YD2u'),
+('paypal.mode','sandbox'),
+('urlPaypalCancel','http://localhost/payment/cancel'),
+('urlPaypalSuccess','http://localhost/payment/success');
+
+SET SQL_SAFE_UPDATES = 0;
+
+UPDATE rol SET nombre = 'ROLE_ADMIN'     WHERE nombre = 'ADMIN';
+UPDATE rol SET nombre = 'ROLE_VENDEDOR'  WHERE nombre = 'VENDEDOR';
+UPDATE rol SET nombre = 'ROLE_USER'      WHERE nombre = 'USER';
+
+-- Si quieres, vuelve a activarlo
+SET SQL_SAFE_UPDATES = 1;
